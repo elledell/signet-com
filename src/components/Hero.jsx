@@ -11,6 +11,10 @@ import slide5 from '../assets/slide5.jfif';
 const Hero = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  // NEW: State to track touch coordinates for mobile swiping
+  const [touchStartX, setTouchStartX] = useState(null);
+  const [touchEndX, setTouchEndX] = useState(null);
+
   // Helper object for custom construction-themed icons
   const icons = {
     trophy: (
@@ -35,7 +39,7 @@ const Hero = () => {
       desc: "Signet combines forward-thinking engineering with precision execution to build the future you envision.",
       subtitle: "Where future meets execution.",
       ctaText: "Explore Projects",
-      ctaLink: "#gallery", // Links directly to gallery section
+      ctaLink: "#gallery",
       stats: [
         { value: "15+", label: "Years of Excellence", icon: icons.checkCircle },
         { value: "50+", label: "Completed Projects", icon: icons.building }
@@ -48,7 +52,7 @@ const Hero = () => {
       desc: "We design and build innovative commercial spaces that drive business growth and community value.",
       subtitle: "Innovative spaces for thriving businesses.",
       ctaText: "Commercial Services",
-      ctaLink: "#services", // Links to services section
+      ctaLink: "#services",
       stats: [
         { value: "10K+", label: "Sq Ft Commercial", icon: icons.area },
         { value: "20+", label: "Industry Awards", icon: icons.trophy }
@@ -61,7 +65,7 @@ const Hero = () => {
       desc: "Our civil engineering expertise lays the foundation for reliable and sustainable public infrastructure.",
       subtitle: "The civil systems of tomorrow.",
       ctaText: "Civil Engineering",
-      ctaLink: "#services", // Links to services section
+      ctaLink: "#services",
       stats: [
         { value: "25+", label: "Bridge Projects", icon: icons.building },
         { value: "100+", label: "Miles of Road", icon: icons.area }
@@ -74,7 +78,7 @@ const Hero = () => {
       desc: "We craft beautiful, efficient, and sustainable modern homes that foster quality living and enduring value.",
       subtitle: "Crafting beautiful modern homes.",
       ctaText: "View Residential",
-      ctaLink: "#services", // Links to services section
+      ctaLink: "#services",
       stats: [
         { value: "30+", label: "Communities Developed", icon: icons.building },
         { value: "98%", label: "Client Satisfaction", icon: icons.checkCircle }
@@ -87,7 +91,7 @@ const Hero = () => {
       desc: "Our commitment to safety is our foundation. ISO 9001 certification ensures excellence in every project.",
       subtitle: "A foundation of safety.",
       ctaText: "Our Safety Standards",
-      ctaLink: "#about", // Links to about section
+      ctaLink: "#about",
       stats: [
         { value: "ZERO", label: "Lost Time Incidents", icon: icons.checkCircle },
         { value: "ISO", label: "9001 Certified", icon: icons.checkCircle }
@@ -109,9 +113,41 @@ const Hero = () => {
   const prevSlide = () => setCurrentSlide(prevIndex);
   const goToSlide = (index) => setCurrentSlide(index);
 
+  // NEW: Swipe event handler functions
+  const minSwipeDistance = 50; // Required distance to register as a swipe
+
+  const onTouchStart = (e) => {
+    setTouchEndX(null); // Reset on new touch
+    setTouchStartX(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e) => {
+    setTouchEndX(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStartX || !touchEndX) return;
+    
+    const distance = touchStartX - touchEndX;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      nextSlide();
+    } else if (isRightSwipe) {
+      prevSlide();
+    }
+  };
+
   return (
-    // Changed h-[80vh] md:h-[90vh] to h-screen to fill the entire screen height.
-    <div id="hero" className="relative w-full h-screen bg-slate-950 overflow-hidden group">
+    // CHANGED: Added onTouchStart, onTouchMove, and onTouchEnd to this wrapper div
+    <div 
+      id="hero" 
+      className="relative w-full h-screen bg-slate-950 overflow-hidden group"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       
       {/* Slides Container */}
       {slides.map((slide, index) => {
@@ -133,7 +169,6 @@ const Hero = () => {
 
             {/* Content Overlay */}
             <div className="absolute inset-0 flex justify-start items-center px-4 sm:px-6 lg:px-12">
-              {/* Removed the background and padding classes here to remove the rectangular overlay */}
               <div 
                 className="max-w-7xl mx-auto w-full flex flex-col md:flex-row md:items-center"
               >
@@ -162,7 +197,6 @@ const Hero = () => {
                   <div 
                     className={`transition-all duration-700 ease-out transform ${isActive ? 'translate-y-0 opacity-100 delay-700' : 'translate-y-12 opacity-0'}`}
                   >
-                    {/* Changed from <Link> to standard <a> tag for smooth scrolling */}
                     <a 
                       href={slide.ctaLink}
                       className="inline-block bg-[#FFC107] hover:bg-yellow-500 text-black font-bold py-3.5 px-8 uppercase tracking-widest text-sm transition-colors shadow-xl rounded-sm"
@@ -196,9 +230,10 @@ const Hero = () => {
       })}
 
       {/* --- NAVIGATION ARROWS --- */}
+      {/* CHANGED: Replaced `flex` with `hidden md:flex` on both buttons below to hide on mobile */}
       <button 
         onClick={prevSlide}
-        className="absolute left-6 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-16 h-16 rounded-full border border-slate-500/50 bg-slate-900/60 transition-transform hover:scale-110 md:cursor-pointer overflow-hidden group/arrowPrev backdrop-blur-sm"
+        className="absolute left-6 top-1/2 -translate-y-1/2 z-20 hidden md:flex items-center justify-center w-16 h-16 rounded-full border border-slate-500/50 bg-slate-900/60 transition-transform hover:scale-110 md:cursor-pointer overflow-hidden group/arrowPrev backdrop-blur-sm"
         aria-label="Previous Slide"
       >
         <div className="absolute inset-0 z-0 bg-cover bg-center rounded-full opacity-0 group-hover/arrowPrev:opacity-100 transition-opacity duration-300 flex-shrink-0"
@@ -211,7 +246,7 @@ const Hero = () => {
 
       <button 
         onClick={nextSlide}
-        className="absolute right-6 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-16 h-16 rounded-full border border-slate-500/50 bg-slate-900/60 transition-transform hover:scale-110 md:cursor-pointer overflow-hidden group/arrowNext backdrop-blur-sm"
+        className="absolute right-6 top-1/2 -translate-y-1/2 z-20 hidden md:flex items-center justify-center w-16 h-16 rounded-full border border-slate-500/50 bg-slate-900/60 transition-transform hover:scale-110 md:cursor-pointer overflow-hidden group/arrowNext backdrop-blur-sm"
         aria-label="Next Slide"
       >
         <div className="absolute inset-0 z-0 bg-cover bg-center rounded-full opacity-0 group-hover/arrowNext:opacity-100 transition-opacity duration-300 flex-shrink-0"
