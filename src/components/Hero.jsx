@@ -11,7 +11,7 @@ import slide5 from '../assets/slide5.jfif';
 const Hero = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // NEW: State to track touch coordinates for mobile swiping
+  // State to track touch coordinates for mobile swiping
   const [touchStartX, setTouchStartX] = useState(null);
   const [touchEndX, setTouchEndX] = useState(null);
 
@@ -113,11 +113,11 @@ const Hero = () => {
   const prevSlide = () => setCurrentSlide(prevIndex);
   const goToSlide = (index) => setCurrentSlide(index);
 
-  // NEW: Swipe event handler functions
-  const minSwipeDistance = 50; // Required distance to register as a swipe
+  // Swipe event handler functions
+  const minSwipeDistance = 50; 
 
   const onTouchStart = (e) => {
-    setTouchEndX(null); // Reset on new touch
+    setTouchEndX(null); 
     setTouchStartX(e.targetTouches[0].clientX);
   };
 
@@ -140,7 +140,6 @@ const Hero = () => {
   };
 
   return (
-    // CHANGED: Added onTouchStart, onTouchMove, and onTouchEnd to this wrapper div
     <div 
       id="hero" 
       className="relative w-full h-screen bg-slate-950 overflow-hidden group"
@@ -168,7 +167,8 @@ const Hero = () => {
             <div className="absolute inset-0 bg-black/60" />
 
             {/* Content Overlay */}
-            <div className="absolute inset-0 flex justify-start items-center px-4 sm:px-6 lg:px-12">
+            {/* INCLUDES INCREASED PADDING FOR DESKTOP (md:px-24 lg:px-32) TO CLEAR ARROWS */}
+            <div className="absolute inset-0 flex justify-start items-center px-4 sm:px-8 md:px-24 lg:px-32">
               <div 
                 className="max-w-7xl mx-auto w-full flex flex-col md:flex-row md:items-center"
               >
@@ -230,7 +230,6 @@ const Hero = () => {
       })}
 
       {/* --- NAVIGATION ARROWS --- */}
-      {/* CHANGED: Replaced `flex` with `hidden md:flex` on both buttons below to hide on mobile */}
       <button 
         onClick={prevSlide}
         className="absolute left-6 top-1/2 -translate-y-1/2 z-20 hidden md:flex items-center justify-center w-16 h-16 rounded-full border border-slate-500/50 bg-slate-900/60 transition-transform hover:scale-110 md:cursor-pointer overflow-hidden group/arrowPrev backdrop-blur-sm"
